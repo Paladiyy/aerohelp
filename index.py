@@ -1,20 +1,17 @@
 import telebot
-import telegramcalendar
-import time
 from telebot import types
-import logging
-from telegram.ext import Updater
-from telegram.ext import  CallbackQueryHandler
-from telegram.ext import  CommandHandler
-from telegram import  ReplyKeyboardRemove
 bot = telebot.TeleBot('1210073832:AAE9sKHHH6ZPm581AhDbKfhKUYM7qNWmhc0')
-keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-keyboard.add(*[types.KeyboardButton(name) for name in ['Информация о рейсе', 'Разработчики']])
-
-
 var = ""
 var1 = ""
 var2 = ""
+var4 = ""
+
+@bot.message_handler(content_types=['text'])
+def names(m):
+    if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
+        name(m)
+    else:
+        start(m)
 
 @bot.message_handler(commands=['start'])
 def start(m):
@@ -23,8 +20,6 @@ def start(m):
     keyboard.add(*[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
     bot.send_message(m.chat.id, 'Выберите в меню что вам интересно!', reply_markup=keyboard)
     bot.register_next_step_handler(msg, name)
-
-
 
 def name(m):
     if m.text == u"\U0001F4BB" + 'Разработчики':
@@ -37,6 +32,7 @@ def name(m):
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, name2)
+
 def namem(m):
     smile = u'\U0001F525'
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -45,8 +41,6 @@ def namem(m):
     bot.register_next_step_handler(msg, name2)
 
 def name2(m):
-
-
     if m.text == 'Назад':
         start(m)
         return
@@ -66,7 +60,6 @@ def name3(m):
         bot.register_next_step_handler(msg, name4)
 
 def name4(m):
-
     if m.text == 'Назад':
         name(m)
         return
@@ -74,8 +67,9 @@ def name4(m):
         global var1
         var1 = m.text
         name5(m)
+
 def name5(m):
-    keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    keyboard = types.ReplyKeyboardMarkup(True, True)
     button_date1= types.KeyboardButton(text="1")
     button_date2= types.KeyboardButton(text="2")
     button_date3 = types.KeyboardButton(text="3")
@@ -119,25 +113,20 @@ def name5(m):
     keyboard.row(button_date31, button_date32, button_date33, button_date34, button_date36)
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, name6)
-def name6(m):
 
+def name6(m):
     if m.text == 'Назад':
         name3(m)
         return
     else:
         global var2
         var2 = m.text
-        bot.send_message(m.chat.id, 'Аэропорт: ' + var + ', Месяц: ' + var1 + ', День: ' + var2)
+        msg = bot.send_message(m.chat.id, 'Введите направление')
+        bot.register_next_step_handler(msg, name7)
 
-
-
-
-
-
-
-
-
-
+def name7(m):
+    global var4
+    var4 == m.text
 
 
 
