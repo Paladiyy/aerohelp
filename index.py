@@ -20,14 +20,16 @@ var2 = ""
 def start(m):
     msg = bot.send_message(m.chat.id, "Привет, я Aerohelper. Давай посмотрим список доступных команд.")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(*[types.KeyboardButton(name) for name in ['Информация о рейсе', 'Разработчики']])
+    keyboard.add(*[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
     bot.send_message(m.chat.id, 'Выберите в меню что вам интересно!', reply_markup=keyboard)
     bot.register_next_step_handler(msg, name)
 
 
 
 def name(m):
-    if m.text == 'Информация о рейсе':
+    if m.text == u"\U0001F4BB" + 'Разработчики':
+        namem(m)
+    else:
         keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
@@ -35,12 +37,12 @@ def name(m):
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, name2)
-    elif m.text == 'Разработчики':
-        smile = u'\U0001F525'
-        keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
-        msg = bot.send_message(m.chat.id, smile + 'by egorov dynasty', reply_markup=keyboard1)
-        bot.register_next_step_handler(msg, name2)
+def namem(m):
+    smile = u'\U0001F525'
+    keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
+    msg = bot.send_message(m.chat.id, smile + 'by egorov dynasty', reply_markup=keyboard1)
+    bot.register_next_step_handler(msg, name2)
 
 def name2(m):
 
@@ -53,7 +55,6 @@ def name2(m):
         var = m.text
         name3(m)
 
-@bot.message_handler(content_types=['text'])
 def name3(m):
         keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Январь','Февраль','Март']])
@@ -114,10 +115,9 @@ def name5(m):
     button_date32 = types.KeyboardButton(text=" ")
     button_date33 = types.KeyboardButton(text=" ")
     button_date34 = types.KeyboardButton(text=" ")
-    button_date35 = types.KeyboardButton(text=" ")
     button_date36 = types.KeyboardButton(text="Назад")
-    keyboard.row(button_date31, button_date32, button_date33, button_date34, button_date35, button_date36)
-    msg = bot.send_message(m.chat.id, 'Выбери месяц отправления', reply_markup=keyboard)
+    keyboard.row(button_date31, button_date32, button_date33, button_date34, button_date36)
+    msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, name6)
 def name6(m):
 
