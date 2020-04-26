@@ -1,10 +1,15 @@
 import telebot
 from telebot import types
+import requests
+import json
+import pandas as pd
+import numpy as np
+import json
 bot = telebot.TeleBot('1210073832:AAE9sKHHH6ZPm581AhDbKfhKUYM7qNWmhc0')
-var = ""
-var1 = ""
-var2 = ""
-var4 = ""
+port = ""
+month = ""
+day = ""
+direct = ""
 
 @bot.message_handler(content_types=['text'])
 def names(m):
@@ -45,8 +50,8 @@ def name2(m):
         start(m)
         return
     else:
-        global var
-        var = m.text
+        global port
+        port = m.text
         name3(m)
 
 def name3(m):
@@ -64,8 +69,8 @@ def name4(m):
         name(m)
         return
     else:
-        global var1
-        var1 = m.text
+        global month
+        month = m.text
         name5(m)
 
 def name5(m):
@@ -119,15 +124,79 @@ def name6(m):
         name3(m)
         return
     else:
-        global var2
-        var2 = m.text
+        global day
+        day = m.text
         msg = bot.send_message(m.chat.id, 'Введите направление')
         bot.register_next_step_handler(msg, name7)
 
 def name7(m):
-    global var4
-    var4 == m.text
+    global direct
+    direct == m.text
 
+
+
+
+def getTime(port,day,month,direct):
+    # Небольшая обработка для запроса
+    if (len(day) == 1):
+        day = "0" + day
+
+    months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь''Октябрь', 'Ноябрь',
+              'Декабрь']
+    for i in range(len(months)):
+        if (month == months[i]):
+            month = str(i + 1)
+            break
+    if (len(month) == 1):
+        month = "0" + month
+
+    ports = {'Домодедово': 'DME', 'Шереметьево': 'SVO', 'Внуково': 'VKO'}
+    port = ports[port]
+
+    link = "https://api.rasp.yandex.net/v3.0/schedule/?apikey=94b5c4bf-9350-4f45-896d-ad5e244bc10e&system=iata&date=2020-" + month + "-" + day + "&transport_types=plane&station=" + port
+
+    response = requests.get(link)  # отправляем запрос на получение кода страницы
+
+    response.raise_for_status()
+    d = response.json()  # do not create the result file until json is parsed
+
+    schedule = pd.DataFrame(d['schedule'])
+
+    departure = schedule.departure
+    threads = schedule.thread
+    direction = {'': 0}
+
+    for i in range(len(threads)):
+        dirt = threads[i].get('title')
+        dirt = dirt[9::]
+        direction[dirt] = 0
+
+    del direction['']
+
+    for i in range(len(threads)):
+        dirt = threads[i].get('title')
+        dirt = dirt[9::]
+        direction[dirt] = 0
+    ans = direct
+    for i in range(len(ans)):
+        for k, v in direction.items():
+            if ((i < len(k)) and (ans[i] == k[i])):
+                direction[k] = direction[k] + 1
+    direction_list = sorted(direction.items(), key=lambda kv: kv[1])
+    max_value = max(x[1] for x in direction_list)
+    ans1 = [x for x in direction_list if x[1] == max_value]
+    rightAns = ans1[0][0]
+
+    rightAns = 'Москва — ' + rightAns
+    flight = []
+    timeP = []
+
+    for i in range(len(threads)):
+        if (rightAns == threads[i].get('title')):
+            flight.append(i)
+
+    for i in flight:
+        timeP.append(departure[i])
 
 
 bot.polling()
