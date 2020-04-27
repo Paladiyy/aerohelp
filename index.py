@@ -10,6 +10,12 @@ port = ""
 month = ""
 day = ""
 direct = ""
+timeP = []
+number_Flight = []
+term = []
+plat = []
+mod = []
+comp = []
 
 @bot.message_handler(content_types=['text'])
 def names(m):
@@ -136,7 +142,7 @@ def name7(m):
 
 
 
-def getData(port,day,month,direct):
+def getTime(port,day,month,direct):
     # Небольшая обработка для запроса
     if (len(day) == 1):
         day = "0" + day
@@ -193,6 +199,7 @@ def getData(port,day,month,direct):
     rightAns = 'Москва — ' + rightAns
     flight = []
     
+    global timeP,number_Flight,term,plat,mod,comp
     timeP = []
     number_Flight = []
     term = []
