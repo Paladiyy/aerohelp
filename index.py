@@ -136,7 +136,7 @@ def name7(m):
 
 
 
-def getTime(port,day,month,direct):
+def getData(port,day,month,direct):
     # Небольшая обработка для запроса
     if (len(day) == 1):
         day = "0" + day
@@ -150,8 +150,9 @@ def getTime(port,day,month,direct):
     if (len(month) == 1):
         month = "0" + month
 
-    ports = {'Домодедово': 'DME', 'Шереметьево': 'SVO', 'Внуково': 'VKO'}
-    port = ports[port]
+    if (len(port) != 3):
+        ports = {'Домодедово': 'DME', 'Шереметьево': 'SVO', 'Внуково': 'VKO'}
+        port = ports[port]
 
     link = "https://api.rasp.yandex.net/v3.0/schedule/?apikey=94b5c4bf-9350-4f45-896d-ad5e244bc10e&system=iata&date=2020-" + month + "-" + day + "&transport_types=plane&station=" + port
 
@@ -163,6 +164,8 @@ def getTime(port,day,month,direct):
     schedule = pd.DataFrame(d['schedule'])
 
     departure = schedule.departure
+    terminal = schedule.terminal
+    platform = schedule.platform
     threads = schedule.thread
     direction = {'': 0}
 
@@ -189,7 +192,13 @@ def getTime(port,day,month,direct):
 
     rightAns = 'Москва — ' + rightAns
     flight = []
+    
     timeP = []
+    number_Flight = []
+    term = []
+    plat = []
+    mod = []
+    comp = []
 
     for i in range(len(threads)):
         if (rightAns == threads[i].get('title')):
@@ -197,6 +206,11 @@ def getTime(port,day,month,direct):
 
     for i in flight:
         timeP.append(departure[i])
+        number_Flight.append(threads[i].get('number'))
+        term.append(terminal[i])
+        plat.append(platform[i])
+        mod.append(threads[i].get('vehicle'))
+        comp.append(threads[i].get('carrier').get('title'))
 
 
 bot.polling()
