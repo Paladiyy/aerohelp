@@ -31,12 +31,12 @@ def start(m):
     keyboard.add(
         *[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
     bot.send_message(m.chat.id, 'Выберите в меню что вам интересно!', reply_markup=keyboard)
-    bot.register_next_step_handler(msg, name)
+    bot.register_next_step_handler(msg, printPort)
 
 
-def name(m):
+def printPort(m):
     if m.text == u"\U0001F4BB" + 'Разработчики':
-        namem(m)
+        printDev(m)
     else:
         keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
@@ -44,28 +44,28 @@ def name(m):
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Внуково']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
-        bot.register_next_step_handler(msg, name2)
+        bot.register_next_step_handler(msg, inputPort)
 
 
-def namem(m):
+def printDev(m):
     smile = u'\U0001F525'
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
     msg = bot.send_message(m.chat.id, smile + 'by egorov dynasty', reply_markup=keyboard1)
-    bot.register_next_step_handler(msg, name2)
+    bot.register_next_step_handler(msg, inputPort)
 
 
-def name2(m):
+def inputPort(m):
     if m.text == 'Назад':
         start(m)
         return
     else:
         global port
         port = m.text
-        name3(m)
+        printMonth(m)
 
 
-def name3(m):
+def printMonth(m):
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Январь', 'Февраль', 'Март']])
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Апрель', 'Май', 'Июнь']])
@@ -73,20 +73,20 @@ def name3(m):
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Октябрь', 'Ноябрь', 'Декабрь']])
     keyboard1.add(*[types.KeyboardButton(advert) for advert in [' ', ' ', 'Назад']])
     msg = bot.send_message(m.chat.id, 'Выбери месяц отправления', reply_markup=keyboard1)
-    bot.register_next_step_handler(msg, name4)
+    bot.register_next_step_handler(msg, inputMonth)
 
 
-def name4(m):
+def inputMonth(m):
     if m.text == 'Назад':
         name(m)
         return
     else:
         global month
         month = m.text
-        name5(m)
+        inputDay(m)
 
 
-def name5(m):
+def inputDay(m):
     keyboard = types.ReplyKeyboardMarkup(True, True)
     button_date1 = types.KeyboardButton(text="1")
     button_date2 = types.KeyboardButton(text="2")
@@ -130,21 +130,21 @@ def name5(m):
     button_date36 = types.KeyboardButton(text="Назад")
     keyboard.row(button_date31, button_date32, button_date33, button_date34, button_date36)
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
-    bot.register_next_step_handler(msg, name6)
+    bot.register_next_step_handler(msg, inputDirect)
 
 
-def name6(m):
+def inputDirect(m):
     if m.text == 'Назад':
-        name3(m)
+        printMonth(m)
         return
     else:
         global day
         day = m.text
         msg = bot.send_message(m.chat.id, 'Введите направление')
-        bot.register_next_step_handler(msg, name7)
+        bot.register_next_step_handler(msg, printAnsSearch)
 
 
-def name7(m):
+def printAnsSearch(m):
     global direct
     direct = m.text
     msg=bot.send_message(m.chat.id, u"\U0001F50E"+" В поисках данных...")
@@ -152,9 +152,9 @@ def name7(m):
     for i in range(len(timeP)):
         ourAns =u'\U0001F30D'+'Направление: '+rightAns+'\n'+u'\U0001F558' +'Время отправления: '+timeP[i][11:16] + '\n'+ u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n'+u'\u2708' +'Модель самолета: '+ mod[i] + '\n'+u'\U0001F3E2'+'Компания: ' + comp[i]
         bot.send_message(m.chat.id, ourAns)
-    bot.register_next_step_handler(msg, name8)
+    bot.register_next_step_handler(msg, endFunc)
 
-def name8(m):
+def endFunc(m):
     pass
 
 
