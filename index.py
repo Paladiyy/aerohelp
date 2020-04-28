@@ -14,7 +14,7 @@ term = []
 plat = []
 mod = []
 comp = []
-
+rightAns = ''
 
 #@bot.message_handler(content_types=['text'])
 #def names(m):
@@ -140,7 +140,6 @@ def name6(m):
     else:
         global day
         day = m.text
-        print("final")
         msg = bot.send_message(m.chat.id, 'Введите направление')
         bot.register_next_step_handler(msg, name7)
 
@@ -151,7 +150,7 @@ def name7(m):
     msg=bot.send_message(m.chat.id, u"\U0001F50E"+" В поисках данных...")
     getTime(port, day, month, direct)
     for i in range(len(timeP)):
-        ourAns =u'\U0001F558' +'Время отправления: '+timeP[i][11:16] + '\n'+ u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n '+u'\u2708' +'Модель самолета: '+ mod[i] + '\n'+u'\U0001F3E2'+'Компания: ' + comp[i]
+        ourAns =u'\U0001F30D'+'Направление: '+rightAns+'\n'+u'\U0001F558' +'Время отправления: '+timeP[i][11:16] + '\n'+ u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n'+u'\u2708' +'Модель самолета: '+ mod[i] + '\n'+u'\U0001F3E2'+'Компания: ' + comp[i]
         bot.send_message(m.chat.id, ourAns)
     bot.register_next_step_handler(msg, name8)
 
@@ -213,6 +212,7 @@ def getTime(port, day, month, direct):
     direction_list = sorted(direction.items(), key=lambda kv: kv[1])
     max_value = max(x[1] for x in direction_list)
     ans1 = [x for x in direction_list if x[1] == max_value]
+    global rightAns
     rightAns = ans1[0][0]
 
     rightAns = 'Москва — ' + rightAns
