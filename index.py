@@ -78,7 +78,7 @@ def printMonth(m):
 
 def inputMonth(m):
     if m.text == 'Назад':
-        name(m)
+        printPort(m)
         return
     else:
         global month
