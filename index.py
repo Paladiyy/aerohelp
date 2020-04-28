@@ -1,10 +1,8 @@
 import telebot
 from telebot import types
 import requests
-import json
 import pandas as pd
-import numpy as np
-import json
+
 bot = telebot.TeleBot('1210073832:AAE9sKHHH6ZPm581AhDbKfhKUYM7qNWmhc0')
 port = ""
 month = ""
@@ -17,20 +15,24 @@ plat = []
 mod = []
 comp = []
 
-@bot.message_handler(content_types=['text'])
-def names(m):
-    if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
-        name(m)
-    else:
-        start(m)
+
+#@bot.message_handler(content_types=['text'])
+#def names(m):
+ #   if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
+   #     name(m)
+  #  else:
+   #     start(m)
+
 
 @bot.message_handler(commands=['start'])
 def start(m):
     msg = bot.send_message(m.chat.id, "Привет, я Aerohelper. Давай посмотрим список доступных команд.")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(*[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
+    keyboard.add(
+        *[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
     bot.send_message(m.chat.id, 'Выберите в меню что вам интересно!', reply_markup=keyboard)
     bot.register_next_step_handler(msg, name)
+
 
 def name(m):
     if m.text == u"\U0001F4BB" + 'Разработчики':
@@ -44,12 +46,14 @@ def name(m):
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, name2)
 
+
 def namem(m):
     smile = u'\U0001F525'
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
     msg = bot.send_message(m.chat.id, smile + 'by egorov dynasty', reply_markup=keyboard1)
     bot.register_next_step_handler(msg, name2)
+
 
 def name2(m):
     if m.text == 'Назад':
@@ -60,15 +64,17 @@ def name2(m):
         port = m.text
         name3(m)
 
+
 def name3(m):
-        keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Январь','Февраль','Март']])
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Апрель','Май','Июнь']])
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Июль','Август','Сентябрь']])
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Октябрь','Ноябрь','Декабрь']])
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in [' ',' ','Назад']])
-        msg = bot.send_message(m.chat.id, 'Выбери месяц отправления', reply_markup=keyboard1)
-        bot.register_next_step_handler(msg, name4)
+    keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Январь', 'Февраль', 'Март']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Апрель', 'Май', 'Июнь']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Июль', 'Август', 'Сентябрь']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Октябрь', 'Ноябрь', 'Декабрь']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in [' ', ' ', 'Назад']])
+    msg = bot.send_message(m.chat.id, 'Выбери месяц отправления', reply_markup=keyboard1)
+    bot.register_next_step_handler(msg, name4)
+
 
 def name4(m):
     if m.text == 'Назад':
@@ -79,10 +85,11 @@ def name4(m):
         month = m.text
         name5(m)
 
+
 def name5(m):
     keyboard = types.ReplyKeyboardMarkup(True, True)
-    button_date1= types.KeyboardButton(text="1")
-    button_date2= types.KeyboardButton(text="2")
+    button_date1 = types.KeyboardButton(text="1")
+    button_date2 = types.KeyboardButton(text="2")
     button_date3 = types.KeyboardButton(text="3")
     button_date4 = types.KeyboardButton(text="4")
     button_date5 = types.KeyboardButton(text="5")
@@ -125,6 +132,7 @@ def name5(m):
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, name6)
 
+
 def name6(m):
     if m.text == 'Назад':
         name3(m)
@@ -132,17 +140,28 @@ def name6(m):
     else:
         global day
         day = m.text
+        print("final")
         msg = bot.send_message(m.chat.id, 'Введите направление')
         bot.register_next_step_handler(msg, name7)
 
+
 def name7(m):
     global direct
-    direct == m.text
+    direct = m.text
+    msg=bot.send_message(m.chat.id, u"\U0001F50E"+" В поисках данных...")
+    getTime(port, day, month, direct)
+    for i in range(len(timeP)):
+        ourAns =u'\U0001F558' +'Время отправления: '+timeP[i][11:16] + '\n'+ u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n '+u'\u2708' +'Модель самолета: '+ mod[i] + '\n'+u'\U0001F3E2'+'Компания: ' + comp[i]
+        bot.send_message(m.chat.id, ourAns)
+    bot.register_next_step_handler(msg, name8)
+
+def name8(m):
+    pass
 
 
 
 
-def getTime(port,day,month,direct):
+def getTime(port, day, month, direct):
     # Небольшая обработка для запроса
     if (len(day) == 1):
         day = "0" + day
@@ -198,8 +217,8 @@ def getTime(port,day,month,direct):
 
     rightAns = 'Москва — ' + rightAns
     flight = []
-    
-    global timeP,number_Flight,term,plat,mod,comp
+
+    global timeP, number_Flight, term, plat, mod, comp
     timeP = []
     number_Flight = []
     term = []
@@ -218,6 +237,10 @@ def getTime(port,day,month,direct):
         plat.append(platform[i])
         mod.append(threads[i].get('vehicle'))
         comp.append(threads[i].get('carrier').get('title'))
+
+
+
+
 
 
 bot.polling()
