@@ -147,27 +147,30 @@ def inputDirect(m):
 def printAnsSearch(m):
     global direct
     direct = m.text
-    msg=bot.send_message(m.chat.id, u"\U0001F50E"+" В поисках данных...")
-    getTime(port, day, month, direct)
+    bot.send_message(m.chat.id, u"\U0001F50E"+" В поисках данных...")
+    try: getTime(port, day, month, direct)
+    except:
+        bot.send_message(m.chat.id, 'Ничего не найдено, давайте попробуем еще раз?')
+        start(m)
+
     for i in range(len(timeP)):
+        #Проверка наличия данных о платформе и терминале
         if str(plat[i]) == '' and str(term[i]) == 'None':
             ourAns =u'\U0001F30D'+'Направление: '+rightAns+'\n'+u'\U0001F558' +'Время отправления: '+timeP[i][11:16] + '\n'+ u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n'+u'\u2708' +'Модель самолета: '+ mod[i] + '\n'+u'\U0001F3E2'+'Компания: ' + comp[i]
-            bot.send_message(m.chat.id, ourAns)
+            msg = bot.send_message(m.chat.id, ourAns)
+            bot.register_next_step_handler(msg, start)
         elif str(plat[i]) != '' and str(term[i]) == 'None':
             ourAns = u'\U0001F30D' + 'Направление: ' + rightAns + '\n' + u'\U0001F558' + 'Время отправления: ' + timeP[i][11:16] + '\n' + u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n' + u'\u2708' + 'Модель самолета: ' + mod[i] + '\n' + u'\U0001F3E2' + 'Компания: ' + comp[i] + '\n'  + 'Платформа: ' + plat[i]
-            bot.send_message(m.chat.id, ourAns)
+            msg = bot.send_message(m.chat.id, ourAns)
+            bot.register_next_step_handler(msg, start)
         elif str(plat[i]) == '' and str(term[i]) != 'None':
             ourAns = u'\U0001F30D' + 'Направление: ' + rightAns + '\n' + u'\U0001F558' + 'Время отправления: ' + timeP[i][11:16] + '\n' + u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n' + u'\u2708' + 'Модель самолета: ' + mod[i] + '\n' + u'\U0001F3E2' + 'Компания: ' + comp[i] + '\n' + u"\U0001F6AA" + 'Терминал: ' + str(term[i])
-            bot.send_message(m.chat.id, ourAns)
+            msg = bot.send_message(m.chat.id, ourAns)
+            bot.register_next_step_handler(msg, start)
         else:
             ourAns = u'\U0001F30D' + 'Направление: ' + rightAns + '\n' + u'\U0001F558' + 'Время отправления: ' + timeP[i][11:16] + '\n' + u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n' + u'\u2708' + 'Модель самолета: ' + mod[i] + '\n' + u'\U0001F3E2' + 'Компания: ' + comp[i] + '\n' + 'Платформа: ' + plat[i] + '\n' + u"\U0001F3E2" + 'Терминал: ' + str(term[i])
-            bot.send_message(m.chat.id, ourAns)
-    bot.register_next_step_handler(msg, endFunc)
-
-def endFunc(m):
-    pass
-
-
+            msg = bot.send_message(m.chat.id, ourAns)
+            bot.register_next_step_handler(msg, start)
 
 
 def getTime(port, day, month, direct):
