@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 import requests
 import pandas as pd
+import time
 
 bot = telebot.TeleBot('1210073832:AAE9sKHHH6ZPm581AhDbKfhKUYM7qNWmhc0')
 port = ""
@@ -23,8 +24,15 @@ rightAns = ''
   #  else:
    #     start(m)
 
+@bot.message_handler(content_types=['text'])
+#после перезагрузки бота, если у пользователя все еще открыта клавиатура, она не будет работать. возвращаем его к /start
+def reanimator(m):
+    if m.text != '/start':
+        bot.send_message(m.chat.id, 'Упс, похоже ваши данные были утеряны. Пожалуйста, повторите ввод.')
+        start(m)
+    else:
+        start(m)
 
-@bot.message_handler(commands=['start'])
 def start(m):
     msg = bot.send_message(m.chat.id, "Привет, я Aerohelper. Давай посмотрим список доступных команд.")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -42,7 +50,7 @@ def printPort(m):
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Внуково']])
-        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
+        keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, inputPort)
 
@@ -50,13 +58,13 @@ def printPort(m):
 def printDev(m):
     smile = u'\U0001F525'
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Назад']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
     msg = bot.send_message(m.chat.id, smile + 'by egorov dynasty', reply_markup=keyboard1)
     bot.register_next_step_handler(msg, inputPort)
 
 
 def inputPort(m):
-    if m.text == 'Назад':
+    if m.text == u"\U0001F519" + 'Назад':
         start(m)
         return
     else:
@@ -71,13 +79,13 @@ def printMonth(m):
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Апрель', 'Май', 'Июнь']])
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Июль', 'Август', 'Сентябрь']])
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Октябрь', 'Ноябрь', 'Декабрь']])
-    keyboard1.add(*[types.KeyboardButton(advert) for advert in [' ', ' ', 'Назад']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in [' ', ' ', u"\U0001F519" + 'Назад']])
     msg = bot.send_message(m.chat.id, 'Выбери месяц отправления', reply_markup=keyboard1)
     bot.register_next_step_handler(msg, inputMonth)
 
 
 def inputMonth(m):
-    if m.text == 'Назад':
+    if m.text ==u"\U0001F519" + 'Назад':
         printPort(m)
         return
     else:
@@ -127,14 +135,14 @@ def inputDay(m):
     button_date32 = types.KeyboardButton(text=" ")
     button_date33 = types.KeyboardButton(text=" ")
     button_date34 = types.KeyboardButton(text=" ")
-    button_date36 = types.KeyboardButton(text="Назад")
+    button_date36 = types.KeyboardButton(text=u"\U0001F519" + "Назад")
     keyboard.row(button_date31, button_date32, button_date33, button_date34, button_date36)
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, inputDirect)
 
 
 def inputDirect(m):
-    if m.text == 'Назад':
+    if m.text == u"\U0001F519" + 'Назад':
         printMonth(m)
         return
     else:
@@ -157,21 +165,17 @@ def printAnsSearch(m):
         #Проверка наличия данных о платформе и терминале
         if str(plat[i]) == '' and str(term[i]) == 'None':
             ourAns =u'\U0001F30D'+'Направление: '+rightAns+'\n'+u'\U0001F558' +'Время отправления: '+timeP[i][11:16] + '\n'+ u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n'+u'\u2708' +'Модель самолета: '+ mod[i] + '\n'+u'\U0001F3E2'+'Компания: ' + comp[i]
-            msg = bot.send_message(m.chat.id, ourAns)
-            bot.register_next_step_handler(msg, start)
+            bot.send_message(m.chat.id, ourAns)
         elif str(plat[i]) != '' and str(term[i]) == 'None':
             ourAns = u'\U0001F30D' + 'Направление: ' + rightAns + '\n' + u'\U0001F558' + 'Время отправления: ' + timeP[i][11:16] + '\n' + u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n' + u'\u2708' + 'Модель самолета: ' + mod[i] + '\n' + u'\U0001F3E2' + 'Компания: ' + comp[i] + '\n'  + 'Платформа: ' + plat[i]
-            msg = bot.send_message(m.chat.id, ourAns)
-            bot.register_next_step_handler(msg, start)
+            bot.send_message(m.chat.id, ourAns)
         elif str(plat[i]) == '' and str(term[i]) != 'None':
             ourAns = u'\U0001F30D' + 'Направление: ' + rightAns + '\n' + u'\U0001F558' + 'Время отправления: ' + timeP[i][11:16] + '\n' + u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n' + u'\u2708' + 'Модель самолета: ' + mod[i] + '\n' + u'\U0001F3E2' + 'Компания: ' + comp[i] + '\n' + u"\U0001F6AA" + 'Терминал: ' + str(term[i])
-            msg = bot.send_message(m.chat.id, ourAns)
-            bot.register_next_step_handler(msg, start)
+            bot.send_message(m.chat.id, ourAns)
         else:
             ourAns = u'\U0001F30D' + 'Направление: ' + rightAns + '\n' + u'\U0001F558' + 'Время отправления: ' + timeP[i][11:16] + '\n' + u"\U0001F310" + 'Номер рейса: ' + number_Flight[i] + '\n' + u'\u2708' + 'Модель самолета: ' + mod[i] + '\n' + u'\U0001F3E2' + 'Компания: ' + comp[i] + '\n' + 'Платформа: ' + plat[i] + '\n' + u"\U0001F3E2" + 'Терминал: ' + str(term[i])
-            msg = bot.send_message(m.chat.id, ourAns)
-            bot.register_next_step_handler(msg, start)
-
+            bot.send_message(m.chat.id, ourAns)
+    endmenu(m)
 
 def getTime(port, day, month, direct):
     # Небольшая обработка для запроса
@@ -251,7 +255,19 @@ def getTime(port, day, month, direct):
         mod.append(threads[i].get('vehicle'))
         comp.append(threads[i].get('carrier').get('title'))
 
+def endmenu(m):
+    keyboard = types.ReplyKeyboardMarkup(True, True)
+    button_1 = types.KeyboardButton(text=u"\U0001F3E1" + "Главное меню")
+    button_2 = types.KeyboardButton(text=u"\U0001F519" + "Назад")
+    keyboard.row(button_1, button_2)
+    msg = bot.send_message(m.chat.id, 'Список рейсов получен.', reply_markup=keyboard)
+    bot.register_next_step_handler(msg, realiseEndmenu)
 
+def realiseEndmenu(m):
+    if m.text == u"\U0001F3E1" + 'Главное меню':
+        start(m)
+    else:
+        inputDay(m)
 
 
 
