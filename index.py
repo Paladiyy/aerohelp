@@ -16,7 +16,7 @@ plat = []
 mod = []
 comp = []
 rightAns = ''
-
+helper = ''
 #@bot.message_handler(content_types=['text'])
 #def names(m):
  #   if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
@@ -35,9 +35,12 @@ def reanimator(m):
 
 def start(m):
     msg = bot.send_message(m.chat.id, "Привет, я Aerohelper. Давай посмотрим список доступных команд.")
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = types.ReplyKeyboardMarkup(True, True)
     keyboard.add(
         *[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
+    keyboard.add(
+        *[types.KeyboardButton(name) for name in
+          ['Гид по аэропорту', 'Поиск отеля']])
     bot.send_message(m.chat.id, 'Выберите в меню что вам интересно!', reply_markup=keyboard)
     bot.register_next_step_handler(msg, printPort)
 
@@ -45,14 +48,30 @@ def start(m):
 def printPort(m):
     if m.text == u"\U0001F4BB" + 'Разработчики':
         printDev(m)
-    else:
-        keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    elif m.text == u"\u2708" + 'Информация о рейсе':
+        keyboard1 = types.ReplyKeyboardMarkup(True, True)
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Внуково']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, inputPort)
+    elif m.text == 'Гид по аэропорту':
+        global helper
+        helper = '1'
+        keyboard1 = types.ReplyKeyboardMarkup(True, True)
+        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
+        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
+        keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Внуково']])
+        keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
+        msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
+        bot.register_next_step_handler(msg, inputPort)
+
+    else:
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton(text="Отели рядом с Домодедово", url="https://www.booking.com/searchresults.ru.html?aid=335789;label=DME-KXeUEPj%2ApD_UkZq%2AZuGD4AS408332454365%3Apl%3Ata%3Ap1%3Ap2%3Aac%3Aap%3Aneg%3Afi%3Atikwd-21825927579%3Alp9047026%3Ali%3Adec%3Adm%3Appccp%3DUmFuZG9tSVYkc2RlIyh9YXL5GV3cgz10tAy2wcQyJHo;sid=1ac49a740e43dd8ad82c27e22ac23416;airport=187;from_airport=1;keep_landing=1;redirected=1;source=airport&gclid=Cj0KCQjw-r71BRDuARIsAB7i_QOgEO8XBh7IkJJ2ZdLB6KxdOb9adtwVWo8bXujlUMtXklMptpnAfOMaAkggEALw_wcB&"))
+        bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
+
 
 
 def printDev(m):
@@ -65,13 +84,41 @@ def printDev(m):
 
 def inputPort(m):
     if m.text == u"\U0001F519" + 'Назад':
+        global helper
+        helper = ''
         start(m)
         return
     else:
         global port
         port = m.text
-        printMonth(m)
+        if helper == '1':
+            guideMenu(m)
+        else:
+            printMonth(m)
 
+
+
+def guideMenu(m):
+    global helper
+    helper = ''
+    if port == 'Домодедово':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton(text="Схема аэропорта", url="https://www.dme.ru/airportguide/map/"))
+        markup.add(types.InlineKeyboardButton(text= u"\U0001F30C" + " Карта 2gis(навигация и метки магазинов)", url="https://go.2gis.com/ppqe5"))
+        markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + " История", url='https://ru.wikipedia.org/wiki/%D0%94%D0%BE%D0%BC%D0%BE%D0%B4%D0%B5%D0%B4%D0%BE%D0%B2%D0%BE_(%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82)'))
+        bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
+    elif port == 'Шереметьево':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton(text="Схема аэропорта", url="https://www.svo.aero/ru/map?terminal=all"))
+        markup.add(types.InlineKeyboardButton(text= u"\U0001F30C" + " Карта 2gis(навигация и метки магазинов)", url="https://2gis.ru/moscow/search/%D0%A8%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%82%D1%8C%D0%B5%D0%B2%D0%BE%20%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82?floor=3&m=37.413421%2C55.980691%2F17.42"))
+        markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + " История", url='https://ru.wikipedia.org/wiki/%D0%A8%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%82%D1%8C%D0%B5%D0%B2%D0%BE'))
+        bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
+    elif port == 'Внуково':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton(text="Схема аэропорта", url="http://www.vnukovo.ru/airport-map/"))
+        markup.add(types.InlineKeyboardButton(text= u"\U0001F30C" + " Карта 2gis(навигация и метки магазинов)", url="https://2gis.ru/moscow/firm/4504127919441635?floor=3&m=37.286956%2C55.606092%2F18.12"))
+        markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + "История", url='https://ru.wikipedia.org/wiki/%D0%92%D0%BD%D1%83%D0%BA%D0%BE%D0%B2%D0%BE_(%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82)'))
+        bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
 
 def printMonth(m):
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -96,47 +143,11 @@ def inputMonth(m):
 
 def inputDay(m):
     keyboard = types.ReplyKeyboardMarkup(True, True)
-    button_date1 = types.KeyboardButton(text="1")
-    button_date2 = types.KeyboardButton(text="2")
-    button_date3 = types.KeyboardButton(text="3")
-    button_date4 = types.KeyboardButton(text="4")
-    button_date5 = types.KeyboardButton(text="5")
-    button_date6 = types.KeyboardButton(text="6")
-    keyboard.row(button_date1, button_date2, button_date3, button_date4, button_date5, button_date6)
-    button_date7 = types.KeyboardButton(text="7")
-    button_date8 = types.KeyboardButton(text="8")
-    button_date9 = types.KeyboardButton(text="9")
-    button_date10 = types.KeyboardButton(text="10")
-    button_date11 = types.KeyboardButton(text="11")
-    button_date12 = types.KeyboardButton(text="12")
-    keyboard.row(button_date7, button_date8, button_date9, button_date10, button_date11, button_date12)
-    button_date13 = types.KeyboardButton(text="13")
-    button_date14 = types.KeyboardButton(text="14")
-    button_date15 = types.KeyboardButton(text="15")
-    button_date16 = types.KeyboardButton(text="16")
-    button_date17 = types.KeyboardButton(text="17")
-    button_date18 = types.KeyboardButton(text="18")
-    keyboard.row(button_date13, button_date14, button_date15, button_date16, button_date17, button_date18)
-    button_date19 = types.KeyboardButton(text="19")
-    button_date20 = types.KeyboardButton(text="20")
-    button_date21 = types.KeyboardButton(text="21")
-    button_date22 = types.KeyboardButton(text="22")
-    button_date23 = types.KeyboardButton(text="23")
-    button_date24 = types.KeyboardButton(text="24")
-    keyboard.row(button_date19, button_date20, button_date21, button_date22, button_date23, button_date24)
-    button_date25 = types.KeyboardButton(text="25")
-    button_date26 = types.KeyboardButton(text="26")
-    button_date27 = types.KeyboardButton(text="27")
-    button_date28 = types.KeyboardButton(text="28")
-    button_date29 = types.KeyboardButton(text="29")
-    button_date30 = types.KeyboardButton(text="30")
-    keyboard.row(button_date25, button_date26, button_date27, button_date28, button_date29, button_date30)
-    button_date31 = types.KeyboardButton(text="31")
-    button_date32 = types.KeyboardButton(text=" ")
-    button_date33 = types.KeyboardButton(text=" ")
-    button_date34 = types.KeyboardButton(text=" ")
-    button_date36 = types.KeyboardButton(text=u"\U0001F519" + "Назад")
-    keyboard.row(button_date31, button_date32, button_date33, button_date34, button_date36)
+    k = 0
+    for i in range(5):
+        keyboard.row(str(k+1), str(k+2), str(k+3), str(k+4), str(k+5), str(k+6))
+        k += 6
+    keyboard.add(*[types.KeyboardButton(name) for name in ['31', u"\U0001F519" + "Назад"]])
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, inputDirect)
 
