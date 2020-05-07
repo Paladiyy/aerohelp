@@ -25,7 +25,7 @@ help3 = ''
 help4 = ''
 help5 = ''
 help6 = ''
-geo = ''
+geoloc = ''
 #@bot.message_handler(content_types=['text'])
 #def names(m):
  #   if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
@@ -289,13 +289,91 @@ def taxiGeo(m):
     bot.register_next_step_handler(msg, inputGeo)
 
 def inputGeo(m):
-    if m.text == 'Отправить геолокацию':
-        global geo
-        geo = m.text
+    if m.text != 'Не отправлять':
+        bot.send_message(m.chat.id, type(m.location))
+        loc=m.location
+        searchAndCreateLinkTaxi(m,loc)
     elif m.text == 'Не отправлять':
+        loc=''
+        searchAndCreateLinkTaxi(m, loc)
         return
     elif m.text == u"\U0001F519" + 'Назад':
         tariff(m)
+
+def searchAndCreateLinkTaxi(m,loc):
+    if loc!='':
+        userLon = loc.longitude
+        userLan = loc.latitude
+
+    classUser = tarif
+    req = ""
+    portTaxi = port
+
+    #bot.send_message(m.chat.id, str(userLon) + ' ' + str(userLan))
+    rll = ""
+    classTaxi = ""
+
+    portLon = ""
+    portLan = ""
+
+    if loc!='':
+        rllUser = str(userLon) + "," + str(userLan)
+    else:
+        rllUser =''
+
+    if portTaxi == "Домодедово":
+        portLon = "37.897951"
+        portLan = "55.416006"
+    elif portTaxi == "Внуково":
+        portLon = "37.2961100"
+        portLan = "55.6119400"
+    elif portTaxi == "Шереметьево":
+        portLon = "38.4986800"
+        portLan = "55.0091300"
+    rll = portLon + "," + portLan
+
+    if classUser == 'Эконом':
+        classTaxi = "econom"
+    elif classUser == 'Комфорт':
+        classTaxi = "business"
+    elif classUser == 'Комфорт+':
+        classTaxi = "comfortplus"
+    elif classUser == 'Минивен':
+        classTaxi = "minivan"
+    elif classUser == 'Бизнес':
+        classTaxi = "vip"
+
+    if (rllUser == ''):
+        link = "https://taxi-routeinfo.taxi.yandex.net/taxi_info?rll=" + rll + "&clid=aerohelperbot&apikey=cb4b360f0b884277a7d15fe87ae9cd6e&class=" + classTaxi
+    else:
+        if userchange == "in":
+            link = "https://taxi-routeinfo.taxi.yandex.net/taxi_info?rll=" + rllUser + "~" + rll + "&clid=aerohelperbot&apikey=cb4b360f0b884277a7d15fe87ae9cd6e&class=" + classTaxi
+        else:
+            link = "https://taxi-routeinfo.taxi.yandex.net/taxi_info?rll=" + rll + "~" + rllUser + "&clid=aerohelperbot&apikey=cb4b360f0b884277a7d15fe87ae9cd6e&class=" + classTaxi
+
+    response = requests.get(link)  # отправляем запрос на получение кода страницы
+
+    response.raise_for_status()
+    d = response.json()  # do not create the result file until json is parsed
+
+    options = d['options']
+    if rllUser != '':
+        distance = d['distance']
+        waiting_time = str(options[0]['waiting_time'])
+        time = str(d['time_text'])
+    classCode = str(options[0]['class_level'])
+    price = str(options[0]['price'])
+
+
+    bot.send_message(m.chat.id, price+' '+classCode)
+    options = d['options']
+    classCode = str(options[0]['class_level'])
+
+#    if userchange == "in":
+#        linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + userLan + "&start-lon=" + userLon + "&end-lat=" + portLan + "&end-lon=" + portLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
+ #   else:
+ #       linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + portLan + "&start-lon=" + portLon + "&end-lat=" + userLan + "&end-lon=" + userLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
+
 
 def inputDirect(m):
     if m.text == u"\U0001F519" + 'Назад':
