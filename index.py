@@ -18,6 +18,14 @@ comp = []
 rightAns = ''
 helper = ''
 userchange = '' #в аэропорт или из аэропорта (in, from)
+tarif = ''
+help1 = ''
+help2 = ''
+help3 = ''
+help4 = ''
+help5 = ''
+help6 = ''
+geo = ''
 #@bot.message_handler(content_types=['text'])
 #def names(m):
  #   if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
@@ -69,7 +77,7 @@ def printPort(m):
         bot.register_next_step_handler(msg, inputPort)
     elif m.text == 'Вызов такси':
         helper = '2'
-        keyboard = types.ReplyKeyboardMarkup(True)
+        keyboard = types.ReplyKeyboardMarkup()
         keyboard.add(*[types.KeyboardButton(name) for name in ['Из аэропорта', 'В аэропорт']])
         keyboard.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери, что тебе нужно', reply_markup=keyboard)
@@ -104,7 +112,7 @@ def inputPort(m):
             userchange = 'from'
         else:
             userchange = 'in'
-        port(m)
+        portt(m)
     else:
         port = m.text
         if helper == '1':
@@ -137,9 +145,9 @@ def guideMenu(m):
         markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + "История", url='https://ru.wikipedia.org/wiki/%D0%92%D0%BD%D1%83%D0%BA%D0%BE%D0%B2%D0%BE_(%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82)'))
         bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
 
-def port(m):
+def portt(m):
     global helper
-    helper == ''
+    helper = ''
     keyboard1 = types.ReplyKeyboardMarkup(True, True)
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
@@ -165,7 +173,7 @@ def inputMonth(m):
         printPort(m)
         return
     elif m.text == 'Домодедово' or 'Шереметьево' or 'Внуково':
-        taxi(m)
+        tariff(m)
     else:
         global month
         month = m.text
@@ -182,15 +190,119 @@ def inputDay(m):
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, inputDirect)
 
-def taxi(m):
+def tariff(m):
     global port
     port = m.text
-    return 0
+    keyboard1 = types.ReplyKeyboardMarkup(True, True)
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Эконом']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Комфорт']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Комфорт+']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Минивен']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Бизнес', u"\U0001F519" + 'Назад']])
+    msg = bot.send_message(m.chat.id, 'Выбери тариф', reply_markup=keyboard1)
+    bot.register_next_step_handler(msg, inputTariff)
+
+def inputTariff(m):
+    if m.text == u"\U0001F519" + 'Назад':
+        port(m)
+        return
+    else:
+        global tarif
+        tarif = m.text
+        wishes(m)
+
+def wishes(m):
+    key = types.InlineKeyboardMarkup()
+    key.add(types.InlineKeyboardButton(text='Кондиционер', callback_data="butt1"))
+    key.add(types.InlineKeyboardButton(text='Некурящий водитель', callback_data="butt2"))
+    key.add(types.InlineKeyboardButton(text='Перевозка велосипеда', callback_data="butt3"))
+    key.add(types.InlineKeyboardButton(text='Детское кресло', callback_data="butt4"))
+    key.add(types.InlineKeyboardButton(text='Перевозка животных', callback_data="butt5"))
+    key.add(types.InlineKeyboardButton(text='Ожидание в пути', callback_data="butt6"))
+    key.add(types.InlineKeyboardButton(text='Ничего не нужно', callback_data="butt7"))
+    key.add(types.InlineKeyboardButton(text='Готово', callback_data="butt8"))
+
+    bot.send_message(m.chat.id, 'Дополнительные пожелания', reply_markup=key)
+
+    @bot.callback_query_handler(func=lambda call: True)
+    def inline(call):
+        global help1, help2, help3, help4, help5, help6
+        if call.data == 'butt1':
+            if help1 == '':
+                help1 = '1'
+                bot.send_message(m.chat.id, 'Вы выбрали кондиционер, хотите выбрать что-то еще? Чтобы отменить выбор, нажмите еще раз.')
+            else:
+                help1 = ''
+                bot.send_message(m.chat.id, 'Вы отменили выбор кондиционера, хотите выбрать что-то еще?')
+        if call.data == 'butt2':
+            if help2 == '':
+                help2 = '1'
+                bot.send_message(m.chat.id, 'Вы выбрали "Некурящий водитель", хотите выбрать что-то еще? Чтобы отменить выбор, нажмите еще раз.')
+            else:
+                help2 = ''
+                bot.send_message(m.chat.id, 'Вы отменили выбор "Некурящий водитель", хотите выбрать что-то еще?')
+        if call.data == 'butt3':
+            if help3 == '':
+                help3 = '3'
+                bot.send_message(m.chat.id, 'Вы выбрали "Перевозка велосипеда", хотите выбрать что-то еще? Чтобы отменить выбор, нажмите еще раз.')
+            else:
+                help3 = ''
+                bot.send_message(m.chat.id, 'Вы отменили "Перевозка велосипеда", хотите выбрать что-то еще?')
+        if call.data == 'butt4':
+            if help4 == '':
+                help4 = '1'
+                bot.send_message(m.chat.id, 'Вы выбрали "Детское кресло", хотите выбрать что-то еще? Чтобы отменить выбор, нажмите еще раз.')
+            else:
+                help4 = ''
+                bot.send_message(m.chat.id, 'Вы отменили "Детское кресло", хотите выбрать что-то еще?')
+        if call.data == 'butt5':
+            if help5 == '':
+                help5 = '1'
+                bot.send_message(m.chat.id, 'Вы выбрали "Перевозка животных", хотите выбрать что-то еще? Чтобы отменить выбор, нажмите еще раз.')
+            else:
+                help5 = ''
+                bot.send_message(m.chat.id, 'Вы отменили "Перевозка животных", хотите выбрать что-то еще?')
+        if call.data == 'butt6':
+            if help5 == '':
+                help5 = '1'
+                bot.send_message(m.chat.id, 'Вы выбрали "Ожидание в пути", хотите выбрать что-то еще? Чтобы отменить выбор, нажмите еще раз.')
+            else:
+                help5 = ''
+                bot.send_message(m.chat.id, 'Вы отменили "Ожидание в пути", хотите выбрать что-то еще?')
+        if call.data == 'butt7':
+            help1 = ''
+            help2 = ''
+            help3 = ''
+            help4 = ''
+            help5 = ''
+            help6 = ''
+            taxiGeo(m)
+        if call.data == 'butt8':
+            taxiGeo(m)
+
+def taxiGeo(m):
+    keyboard1 = types.ReplyKeyboardMarkup(True, True)
+    keyboard1.add(types.KeyboardButton(text="Отправить местоположение", request_location=True))
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Не отправлять']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
+    msg = bot.send_message(m.chat.id, 'Ваше местоположение...', reply_markup=keyboard1)
+    bot.register_next_step_handler(msg, inputGeo)
+
+def inputGeo(m):
+    if m.text == 'Отправить геолокацию':
+        global geo
+        geo = m.text
+    elif m.text == 'Не отправлять':
+        return
+    elif m.text == u"\U0001F519" + 'Назад':
+        tariff(m)
 
 def inputDirect(m):
     if m.text == u"\U0001F519" + 'Назад':
         printMonth(m)
         return
+
+
     else:
         global day
         day = m.text
