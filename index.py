@@ -17,6 +17,7 @@ mod = []
 comp = []
 rightAns = ''
 helper = ''
+userchange = '' #в аэропорт или из аэропорта (in, from)
 #@bot.message_handler(content_types=['text'])
 #def names(m):
  #   if m.text == u"\u2708" + 'Информация о рейсе' or m.text == u"\U0001F4BB" + 'Разработчики':
@@ -40,12 +41,13 @@ def start(m):
         *[types.KeyboardButton(name) for name in [u"\u2708" + 'Информация о рейсе', u"\U0001F4BB" + 'Разработчики']])
     keyboard.add(
         *[types.KeyboardButton(name) for name in
-          ['Гид по аэропорту', 'Поиск отеля']])
+          ['Гид по аэропорту', 'Поиск отеля', 'Вызов такси']])
     bot.send_message(m.chat.id, 'Выберите в меню что вам интересно!', reply_markup=keyboard)
     bot.register_next_step_handler(msg, printPort)
 
 
 def printPort(m):
+    global helper
     if m.text == u"\U0001F4BB" + 'Разработчики':
         printDev(m)
     elif m.text == u"\u2708" + 'Информация о рейсе':
@@ -57,7 +59,6 @@ def printPort(m):
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, inputPort)
     elif m.text == 'Гид по аэропорту':
-        global helper
         helper = '1'
         keyboard1 = types.ReplyKeyboardMarkup(True, True)
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
@@ -66,8 +67,16 @@ def printPort(m):
         keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, inputPort)
+    elif m.text == 'Вызов такси':
+        helper = '2'
+        keyboard = types.ReplyKeyboardMarkup(True)
+        keyboard.add(*[types.KeyboardButton(name) for name in ['Из аэропорта', 'В аэропорт']])
+        keyboard.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
+        msg = bot.send_message(m.chat.id, 'Выбери, что тебе нужно', reply_markup=keyboard)
+        bot.register_next_step_handler(msg, inputPort)
 
-    else:
+
+    elif m.text == 'Поиск отеля':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton(text="Отели рядом с Домодедово", url="https://www.booking.com/searchresults.ru.html?aid=335789;label=DME-KXeUEPj%2ApD_UkZq%2AZuGD4AS408332454365%3Apl%3Ata%3Ap1%3Ap2%3Aac%3Aap%3Aneg%3Afi%3Atikwd-21825927579%3Alp9047026%3Ali%3Adec%3Adm%3Appccp%3DUmFuZG9tSVYkc2RlIyh9YXL5GV3cgz10tAy2wcQyJHo;sid=1ac49a740e43dd8ad82c27e22ac23416;airport=187;from_airport=1;keep_landing=1;redirected=1;source=airport&gclid=Cj0KCQjw-r71BRDuARIsAB7i_QOgEO8XBh7IkJJ2ZdLB6KxdOb9adtwVWo8bXujlUMtXklMptpnAfOMaAkggEALw_wcB&"))
         bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
@@ -83,16 +92,24 @@ def printDev(m):
 
 
 def inputPort(m):
+    global port, userchange
     if m.text == u"\U0001F519" + 'Назад':
         global helper
         helper = ''
         start(m)
         return
+
+    elif helper == '2':
+        if m.text == 'Из аэропорта':
+            userchange = 'from'
+        else:
+            userchange = 'in'
+        port(m)
     else:
-        global port
         port = m.text
         if helper == '1':
             guideMenu(m)
+
         else:
             printMonth(m)
 
@@ -120,6 +137,18 @@ def guideMenu(m):
         markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + "История", url='https://ru.wikipedia.org/wiki/%D0%92%D0%BD%D1%83%D0%BA%D0%BE%D0%B2%D0%BE_(%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82)'))
         bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
 
+def port(m):
+    global helper
+    helper == ''
+    keyboard1 = types.ReplyKeyboardMarkup(True, True)
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Внуково']])
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
+    msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
+    bot.register_next_step_handler(msg, inputMonth)
+
+
 def printMonth(m):
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Январь', 'Февраль', 'Март']])
@@ -135,6 +164,8 @@ def inputMonth(m):
     if m.text ==u"\U0001F519" + 'Назад':
         printPort(m)
         return
+    elif m.text == 'Домодедово' or 'Шереметьево' or 'Внуково':
+        taxi(m)
     else:
         global month
         month = m.text
@@ -151,6 +182,10 @@ def inputDay(m):
     msg = bot.send_message(m.chat.id, 'Выбери день отправления', reply_markup=keyboard)
     bot.register_next_step_handler(msg, inputDirect)
 
+def taxi(m):
+    global port
+    port = m.text
+    return 0
 
 def inputDirect(m):
     if m.text == u"\U0001F519" + 'Назад':
