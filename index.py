@@ -58,7 +58,8 @@ def printPort(m):
     global helper
     if m.text == u"\U0001F4BB" + 'Разработчики':
         printDev(m)
-    elif m.text == u"\u2708" + 'Информация о рейсе':
+    elif m.text == u"\u2708" + 'Информация о рейсе' or helper == '3':
+        helper = ''
         keyboard1 = types.ReplyKeyboardMarkup(True, True)
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Домодедово']])
         keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Шереметьево']])
@@ -75,7 +76,7 @@ def printPort(m):
         keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
         msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
         bot.register_next_step_handler(msg, inputPort)
-    elif m.text == 'Вызов такси':
+    elif m.text == 'Вызов такси' or helper == '4':
         helper = '2'
         keyboard = types.ReplyKeyboardMarkup()
         keyboard.add(*[types.KeyboardButton(name) for name in ['Из аэропорта', 'В аэропорт']])
@@ -131,19 +132,27 @@ def guideMenu(m):
         markup.add(types.InlineKeyboardButton(text="Схема аэропорта", url="https://www.dme.ru/airportguide/map/"))
         markup.add(types.InlineKeyboardButton(text= u"\U0001F30C" + " Карта 2gis(навигация и метки магазинов)", url="https://go.2gis.com/ppqe5"))
         markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + " История", url='https://ru.wikipedia.org/wiki/%D0%94%D0%BE%D0%BC%D0%BE%D0%B4%D0%B5%D0%B4%D0%BE%D0%B2%D0%BE_(%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82)'))
+        markup.add(types.InlineKeyboardButton(text='Главное меню', callback_data='mainmenu'))
         bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
     elif port == 'Шереметьево':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton(text="Схема аэропорта", url="https://www.svo.aero/ru/map?terminal=all"))
         markup.add(types.InlineKeyboardButton(text= u"\U0001F30C" + " Карта 2gis(навигация и метки магазинов)", url="https://2gis.ru/moscow/search/%D0%A8%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%82%D1%8C%D0%B5%D0%B2%D0%BE%20%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82?floor=3&m=37.413421%2C55.980691%2F17.42"))
         markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + " История", url='https://ru.wikipedia.org/wiki/%D0%A8%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D1%82%D1%8C%D0%B5%D0%B2%D0%BE'))
+        markup.add(types.InlineKeyboardButton(text= 'Главное меню', callback_data='mainmenu'))
         bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
     elif port == 'Внуково':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton(text="Схема аэропорта", url="http://www.vnukovo.ru/airport-map/"))
         markup.add(types.InlineKeyboardButton(text= u"\U0001F30C" + " Карта 2gis(навигация и метки магазинов)", url="https://2gis.ru/moscow/firm/4504127919441635?floor=3&m=37.286956%2C55.606092%2F18.12"))
         markup.add(types.InlineKeyboardButton(text=u"\U0001F4DC" + "История", url='https://ru.wikipedia.org/wiki/%D0%92%D0%BD%D1%83%D0%BA%D0%BE%D0%B2%D0%BE_(%D0%B0%D1%8D%D1%80%D0%BE%D0%BF%D0%BE%D1%80%D1%82)'))
+        markup.add(types.InlineKeyboardButton(text='Главное меню', callback_data='mainmenu'))
         bot.send_message(m.chat.id, "Выбери, что тебе интересно.", reply_markup=markup)
+
+    @bot.callback_query_handler(func=lambda call: True)
+    def inline2(call):
+        if call.data == 'mainmenu':
+            start(m)
 
 def portt(m):
     global helper
@@ -154,8 +163,7 @@ def portt(m):
     keyboard1.add(*[types.KeyboardButton(advert) for advert in ['Внуково']])
     keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
     msg = bot.send_message(m.chat.id, 'Выбери аэропорт', reply_markup=keyboard1)
-    bot.register_next_step_handler(msg, inputMonth)
-
+    bot.register_next_step_handler(msg, inputAeroportTaxi)
 
 def printMonth(m):
     keyboard1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -167,13 +175,24 @@ def printMonth(m):
     msg = bot.send_message(m.chat.id, 'Выбери месяц отправления', reply_markup=keyboard1)
     bot.register_next_step_handler(msg, inputMonth)
 
+def inputAeroportTaxi(m):
+    if m.text ==u"\U0001F519" + 'Назад':
+        global helper
+        helper = '4'
+        printPort(m)
+        return
+    else:
+        global port
+        port = m.text
+        tariff(m)
 
 def inputMonth(m):
     if m.text ==u"\U0001F519" + 'Назад':
+        global helper
+        helper = '3'
         printPort(m)
         return
-    elif m.text == 'Домодедово' or 'Шереметьево' or 'Внуково':
-        tariff(m)
+
     else:
         global month
         month = m.text
@@ -204,7 +223,7 @@ def tariff(m):
 
 def inputTariff(m):
     if m.text == u"\U0001F519" + 'Назад':
-        port(m)
+        portt(m)
         return
     else:
         global tarif
@@ -279,6 +298,7 @@ def wishes(m):
             taxiGeo(m)
         if call.data == 'butt8':
             taxiGeo(m)
+
 
 def taxiGeo(m):
     keyboard1 = types.ReplyKeyboardMarkup(True, True)
