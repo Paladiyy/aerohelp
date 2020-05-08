@@ -379,29 +379,41 @@ def searchAndCreateLinkTaxi(m,loc):
     d = response.json()  # do not create the result file until json is parsed
 
     options = d['options']
+    classCode = str(options[0]['class_level'])
     if rllUser != '':
-        distance = str(d['distance']/1000)
-        waiting_time = str(options[0]['waiting_time']/60)
+        distance = str(int(d['distance']/1000))
+        waiting_time = str(int(options[0]['waiting_time']/60))
         time = str(d['time_text'])
     price = str(options[0]['price'])
 
     if (rllUser==''):
         if userchange == "in":
-            bot.send_message(m.chat.id, 'Куда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n')
+            bot.send_message(m.chat.id,u'\u2708'+ 'Куда:' + portTaxi + '\n' +u'\U0001F696'+'Класс:' + classUser + '\n')
         else:
-            bot.send_message(m.chat.id, 'Откуда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n')
+            bot.send_message(m.chat.id,u'\u2708'+ 'Откуда:' + portTaxi + '\n' +u'\U0001F696'+ 'Класс:' + classUser + '\n')
     else:
         if userchange == "in":
-            bot.send_message(m.chat.id, 'Куда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n' + 'Расстояние:'+ distance +'\n'+'Время ожидания:'+waiting_time+' минут'+'\n'+'Время в пути:'+time +'\n'+'Цена:'+price)
+            bot.send_message(m.chat.id,u'\u2708'+ 'Куда:' + portTaxi + '\n' +u'\U0001F696'+ 'Класс:' + classUser + '\n' +u'\U0001F306'+'Расстояние:'+ distance +' км'+'\n'+u'\u23F3'+'Время ожидания:'+waiting_time+' минут'+'\n'+u'\U0001F550'+'Время в пути:'+time +'\n'+u'\U0001F4B8'+'Цена:'+price+' руб.')
         else:
-            bot.send_message(m.chat.id, 'Откуда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n' + 'Расстояние:'+ distance +'\n'+'Время ожидания:'+waiting_time+' минут'+'\n'+'Время в пути:'+time +'\n'+'Цена:'+price)
+            bot.send_message(m.chat.id,u'\u2708'+ 'Откуда:' + portTaxi + '\n'+u'\U0001F696'+ 'Класс:' + classUser + '\n' +u'\U0001F306'+ 'Расстояние:'+ distance +' км'+'\n'+u'\u23F3'+'Время ожидания:'+waiting_time+' минут'+'\n'+u'\U0001F550'+'Время в пути:'+time +'\n'+u'\U0001F4B8'+'Цена:'+price+' руб.')
 
 
-#    if userchange == "in":
-#        linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + userLan + "&start-lon=" + userLon + "&end-lat=" + portLan + "&end-lon=" + portLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
- #   else:
- #       linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + portLan + "&start-lon=" + portLon + "&end-lat=" + userLan + "&end-lon=" + userLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
+    if (rllUser==''):
+        if userchange == "in":
+            linkUser = "https://3.redirect.appmetrica.yandex.com/route?&end-lat=" + portLan + "&end-lon=" + portLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
+        else:
+            linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + portLan + "&start-lon=" + portLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
 
+    else:
+        if userchange == "in":
+            linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + userLan + "&start-lon=" + userLon + "&end-lat=" + portLan + "&end-lon=" + portLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
+        else:
+            linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + portLan + "&start-lon=" + portLon + "&end-lat=" + userLan + "&end-lon=" + userLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
+    keyboard1 = types.ReplyKeyboardMarkup(True, True)
+    keyboard1.add(types.KeyboardButton(text="Заказать", url=linkUser))
+    keyboard1.add(*[types.KeyboardButton(advert) for advert in [u"\U0001F519" + 'Назад']])
+    msg = bot.send_message(m.chat.id, 'Заказывайте Такси?', reply_markup=keyboard1)
+    bot.register_next_step_handler(msg, start(m))
 
 def inputDirect(m):
     if m.text == u"\U0001F519" + 'Назад':
