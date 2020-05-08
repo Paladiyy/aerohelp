@@ -324,6 +324,8 @@ def searchAndCreateLinkTaxi(m,loc):
     if loc!='':
         userLon = loc.longitude
         userLan = loc.latitude
+    userLon = "37.696912"
+    userLan = "55.585866"
 
     classUser = tarif
     req = ""
@@ -378,16 +380,22 @@ def searchAndCreateLinkTaxi(m,loc):
 
     options = d['options']
     if rllUser != '':
-        distance = d['distance']
-        waiting_time = str(options[0]['waiting_time'])
+        distance = str(d['distance']/1000)
+        waiting_time = str(options[0]['waiting_time']/60)
         time = str(d['time_text'])
-    classCode = str(options[0]['class_level'])
     price = str(options[0]['price'])
 
+    if (rllUser==''):
+        if userchange == "in":
+            bot.send_message(m.chat.id, 'Куда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n')
+        else:
+            bot.send_message(m.chat.id, 'Откуда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n')
+    else:
+        if userchange == "in":
+            bot.send_message(m.chat.id, 'Куда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n' + 'Расстояние:'+ distance +'\n'+'Время ожидания:'+waiting_time+' минут'+'\n'+'Время в пути:'+time +'\n'+'Цена:'+price)
+        else:
+            bot.send_message(m.chat.id, 'Откуда:' + portTaxi + '\n' + 'Класс:' + classUser + '\n' + 'Расстояние:'+ distance +'\n'+'Время ожидания:'+waiting_time+' минут'+'\n'+'Время в пути:'+time +'\n'+'Цена:'+price)
 
-    bot.send_message(m.chat.id, price+' '+classCode)
-    options = d['options']
-    classCode = str(options[0]['class_level'])
 
 #    if userchange == "in":
 #        linkUser = "https://3.redirect.appmetrica.yandex.com/route?start-lat=" + userLan + "&start-lon=" + userLon + "&end-lat=" + portLan + "&end-lon=" + portLon + "&level=" + classCode + "&ref=aerohelperbot&appmetrica_tracking_id=1178268795219780156"
